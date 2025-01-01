@@ -1,14 +1,17 @@
+import "reflect-metadata";
 import express from "express";
 import dotenv from "dotenv";
 import { DataSource } from "typeorm";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { authRouter } from "./features/auth/auth.routes";
+import morgan from "morgan";
 
 dotenv.config();
 const app = express();
 const port = parseInt(process.env.PORT as string, 10);
 
-// app.use(express.json());
+app.use(express.json());
 // Note: If more than one frontend is consuming the API, you can add the frontend URLs to the origin array.
 // app.use(
 //   cors({
@@ -19,6 +22,10 @@ const port = parseInt(process.env.PORT as string, 10);
 // );
 
 // app.use(cookieParser());
+
+if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+
+app.use("/auth", authRouter);
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -31,7 +38,6 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: ["src/entity/**/*.ts"],
   migrations: ["src/migration/**/*.ts"],
-  subscribers: ["src/subscriber/**/*.ts"],
 });
 
 AppDataSource.initialize()
