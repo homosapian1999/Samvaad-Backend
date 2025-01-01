@@ -12,16 +12,16 @@ export class User {
   @Column({ name: "passwords", nullable: false })
   password!: string;
 
-  @Column({ name: "first_name", nullable: false })
+  @Column({ name: "first_name", nullable: true })
   firstName!: string;
 
-  @Column({ name: "last_name" })
+  @Column({ name: "last_name", nullable: true })
   lastName!: string;
 
-  @Column({ name: "image" })
+  @Column({ name: "image", nullable: true })
   image!: string;
 
-  @Column({ name: "color" })
+  @Column({ name: "color", nullable: true })
   color!: string;
 
   @Column({ name: "profile_setup", type: "boolean", default: false })
