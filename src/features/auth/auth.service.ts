@@ -1,11 +1,12 @@
 import { User } from "../../entity/user.entity";
-import { RegisterRequestBody } from "./auth.types";
+import { AuthRequestBody } from "./auth.types";
 import { AppDataSource } from "../../server";
-import { hashPassword } from "../../helpers/authHelper";
+import { comparePassword, hashPassword } from "../../helpers/authHelper";
+import jwt from "jsonwebtoken";
 
 export class AuthService {
   public async registerUser(
-    reqBody: RegisterRequestBody
+    reqBody: AuthRequestBody
   ): Promise<{ status: boolean; message: string }> {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
@@ -35,6 +36,43 @@ export class AuthService {
       await em.save(newUser);
       await queryRunner.commitTransaction();
       return { status: true, message: "User registered successfully" };
+    } catch (error) {
+      if (queryRunner.isTransactionActive) {
+        await queryRunner.rollbackTransaction();
+      }
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  public async loginUser(
+    reqBody: AuthRequestBody
+  ): Promise<{ status: boolean; message: string; token?: string }> {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      const { email, password } = reqBody;
+      if (!email || !password) {
+        throw new Error("All fields are required");
+      }
+      const existingUser = await em.findOne(User, {
+        where: { email: email, isActive: true },
+      });
+      if (!existingUser) {
+        throw new Error("User does not exist");
+      }
+      const isPasswordValid = await comparePassword(
+        password,
+        existingUser.password
+      );
+      if (!isPasswordValid) {
+        throw new Error("Invalid password");
+      }
+      const token = jwt.sign({ email }, process.env.JWT_SECRET as string, {
+        expiresIn: "1d",
+      });
+      return { status: true, message: "User logged in successfully", token };
     } catch (error) {
       if (queryRunner.isTransactionActive) {
         await queryRunner.rollbackTransaction();
