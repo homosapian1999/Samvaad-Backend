@@ -11,7 +11,6 @@ dotenv.config();
 const app = express();
 const port = parseInt(process.env.PORT as string, 10);
 
-app.use(express.json());
 // Note: If more than one frontend is consuming the API, you can add the frontend URLs to the origin array.
 // app.use(
 //   cors({
@@ -40,23 +39,23 @@ export const AppDataSource = new DataSource({
   migrations: ["src/migration/**/*.ts"],
 });
 
-AppDataSource.initialize()
-  .then(() => {
-    if (process.env.NODE_ENV !== "test")
-      console.log("Connected to the database");
-    app.use(express.json());
-    app.get("/", (req: any, res: { send: (arg0: string) => void }) => {
-      res.send("Hello Ankit!");
-    });
+app.get("/", (req, res) => {
+  res.send("Hello Ankit!");
+});
 
-    if (process.env.NODE_ENV !== "test") {
-      app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-      });
-    }
-  })
-  .catch((error: any) =>
-    console.log(`Error while setting up the database ${error}`)
-  );
+const startServer = async () => {
+  try {
+    await AppDataSource.initialize();
+    console.log("Connected to the database");
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  } catch (error) {
+    console.error(`Error while setting up the database: ${error}`);
+  }
+};
+if (process.env.NODE_ENV !== "test") {
+  startServer();
+}
 
 export default app;
