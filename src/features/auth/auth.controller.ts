@@ -5,7 +5,12 @@ export class AuthController {
     try {
       const reqBody = req.body;
       const result = await new AuthService().registerUser(reqBody);
-      res.status(200).json(result);
+      res.json(result).cookie("token", result.token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 3600000,
+      });
     } catch (error) {
       res
         .status(400)
@@ -16,7 +21,13 @@ export class AuthController {
     try {
       const reqBody = req.body;
       const result = await new AuthService().loginUser(reqBody);
-      res.status(200).json(result);
+      res;
+      res.json(result).cookie("token", result.token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 259200000,
+      });
     } catch (error) {
       res
         .status(400)
