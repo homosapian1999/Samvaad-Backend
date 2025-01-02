@@ -9,18 +9,19 @@ import morgan from "morgan";
 
 dotenv.config();
 const app = express();
+app.use(express.json());
 const port = parseInt(process.env.PORT as string, 10);
 
 // Note: If more than one frontend is consuming the API, you can add the frontend URLs to the origin array.
-// app.use(
-//   cors({
-//     origin: [process.env.ORIGIN as string],
-//     methods: ["GET", "POST"],
-//     credentials: true,
-//   })
-// );
+app.use(
+  cors({
+    origin: [process.env.ORIGIN as string],
+    methods: ["GET", "POST"],
+    // credentials: true,
+  })
+);
 
-// app.use(cookieParser());
+app.use(cookieParser());
 
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 

@@ -1,7 +1,11 @@
 import { User } from "../../entity/user.entity";
 import { AuthRequestBody } from "./auth.types";
 import { AppDataSource } from "../../server";
-import { comparePassword, hashPassword } from "../../helpers/authHelper";
+import {
+  comparePassword,
+  hashPassword,
+  validateEmail,
+} from "../../helpers/authHelper";
 import jwt from "jsonwebtoken";
 
 export class AuthService {
@@ -18,6 +22,10 @@ export class AuthService {
       }
       if (password !== confirmPassword) {
         throw new Error("Passwords do not match");
+      }
+
+      if (!validateEmail(email)) {
+        throw new Error("Invalid email address");
       }
 
       const existingUser = await em.findOne(User, {

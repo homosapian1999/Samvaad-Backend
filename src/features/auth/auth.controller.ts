@@ -3,7 +3,8 @@ import { AuthService } from "./auth.service";
 export class AuthController {
   public static async registerUser(req: Request, res: Response) {
     try {
-      const reqBody = req.body;
+      const { email, password, confirmPassword } = req.body;
+      const reqBody = { email, password, confirmPassword };
       const result = await new AuthService().registerUser(reqBody);
       res.json(result).cookie("token", result.token, {
         httpOnly: true,
