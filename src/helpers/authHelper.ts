@@ -20,3 +20,8 @@ export const comparePassword = async (
     throw error;
   }
 };
+
+export const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
