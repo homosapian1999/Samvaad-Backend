@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 export class AuthService {
   public async registerUser(
     reqBody: AuthRequestBody
-  ): Promise<{ status: boolean; message: string }> {
+  ): Promise<{ status: boolean; message: string; token?: string }> {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     const em = queryRunner.manager;
@@ -34,8 +34,11 @@ export class AuthService {
         password: hashedPassword,
       });
       await em.save(newUser);
+      const token = jwt.sign({ email }, process.env.JWT_SECRET as string, {
+        expiresIn: "1d",
+      });
       await queryRunner.commitTransaction();
-      return { status: true, message: "User registered successfully" };
+      return { status: true, message: "User registered successfully", token };
     } catch (error) {
       if (queryRunner.isTransactionActive) {
         await queryRunner.rollbackTransaction();

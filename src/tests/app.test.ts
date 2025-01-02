@@ -1,15 +1,15 @@
 import request from "supertest";
 import app, { AppDataSource } from "../server"; // Import the app for testing
 import { Server } from "http";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 let server: Server;
 
 beforeAll(async () => {
-  console.log("Initializing database...");
   await AppDataSource.initialize();
-  server = app.listen(8080, () => {
-    console.log("Test server running on port 3001");
-  });
+  server = app.listen(parseInt(process.env.PORT as string, 10), () => {});
 });
 
 describe("GET /", () => {
