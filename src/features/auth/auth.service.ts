@@ -1,5 +1,5 @@
 import { User } from "../../entity/user.entity";
-import { AuthRequestBody } from "./auth.types";
+import { AuthRequestBody, AuthResponse } from "./auth.types";
 import { AppDataSource } from "../../server";
 import {
   comparePassword,
@@ -56,9 +56,7 @@ export class AuthService {
       await queryRunner.release();
     }
   }
-  public async loginUser(
-    reqBody: AuthRequestBody
-  ): Promise<{ status: boolean; message: string; token?: string }> {
+  public async loginUser(reqBody: AuthRequestBody): Promise<AuthResponse> {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     const em = queryRunner.manager;
@@ -83,7 +81,16 @@ export class AuthService {
       const token = jwt.sign({ email }, process.env.JWT_SECRET as string, {
         expiresIn: "1d",
       });
-      return { status: true, message: "User logged in successfully", token };
+      return {
+        status: true,
+        message: "User logged in successfully",
+        token,
+        isProfileComplete: existingUser.profileSetup,
+        firstName: existingUser.firstName,
+        lastName: existingUser.lastName,
+        image: existingUser.image,
+        color: existingUser.color,
+      };
     } catch (error) {
       if (queryRunner.isTransactionActive) {
         await queryRunner.rollbackTransaction();

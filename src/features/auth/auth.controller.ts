@@ -23,7 +23,7 @@ export class AuthController {
     try {
       const reqBody = req.body;
       const result = await new AuthService().loginUser(reqBody);
-      res.cookie("token", result.token, {
+      res.cookie("token", (result.token), {
         httpOnly: true,
         secure: true,
         sameSite: "none",
