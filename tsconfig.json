@@ -63,7 +63,8 @@
     "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "types": ["node", "jest"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["node", "jest", "express"]
   },
   "include": ["src/**/*", "src/scripts"]
 }
