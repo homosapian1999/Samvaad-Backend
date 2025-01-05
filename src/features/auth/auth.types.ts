@@ -13,4 +13,5 @@ export type AuthResponse = {
   lastName?: string;
   image?: string;
   color?: string;
+  email?: string;
 };

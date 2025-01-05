@@ -90,11 +90,30 @@ export class AuthService {
         lastName: existingUser.lastName,
         image: existingUser.image,
         color: existingUser.color,
+        email: existingUser.email,
       };
     } catch (error) {
       if (queryRunner.isTransactionActive) {
         await queryRunner.rollbackTransaction();
       }
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  public async getUserInfo(userEmail: string) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      const user = await em.findOne(User, {
+        where: { email: userEmail, isActive: true },
+      });
+      if (!user) throw new Error("User not found");
+      return user;
+    } catch (error) {
+      if (queryRunner.isTransactionActive)
+        await queryRunner.rollbackTransaction();
       throw error;
     } finally {
       await queryRunner.release();

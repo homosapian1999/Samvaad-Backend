@@ -1,9 +1,10 @@
 import { JwtPayload } from "jsonwebtoken";
+import { User } from "../user.entity";
 
 declare global {
   namespace Express {
-    interface Request {
-      user?: string | JwtPayload; // Add the custom user property
+    export interface Request {
+      user?: User; // Add the custom user property
     }
   }
 }

@@ -7,6 +7,14 @@ import cookieParser from "cookie-parser";
 import { authRouter } from "./features/auth/auth.routes";
 import morgan from "morgan";
 
+declare global {
+  namespace Express {
+    interface Request {
+      context: string;
+    }
+  }
+}
+
 dotenv.config();
 const app = express();
 app.use(express.json());
