@@ -15,3 +15,10 @@ export type AuthResponse = {
   color?: string;
   email?: string;
 };
+
+export type UpdateProfile = {
+  userEmail: string;
+  firstName: string;
+  lastName: string;
+  color: string;
+};

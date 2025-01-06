@@ -1,5 +1,5 @@
 import { User } from "../../entity/user.entity";
-import { AuthRequestBody, AuthResponse } from "./auth.types";
+import { AuthRequestBody, AuthResponse, UpdateProfile } from "./auth.types";
 import { AppDataSource } from "../../server";
 import {
   comparePassword,
@@ -115,6 +115,43 @@ export class AuthService {
       if (queryRunner.isTransactionActive)
         await queryRunner.rollbackTransaction();
       throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  public async updateProfile(reqBody: UpdateProfile) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      const { userEmail, firstName, lastName, color } = reqBody;
+      if (!userEmail || !firstName || !lastName)
+        throw new Error("Mandatory parameters are missing");
+
+      const existingUser = await em.findOne(User, {
+        where: { email: userEmail, isActive: true },
+      });
+      if (!existingUser) throw new Error("No user is found");
+
+      await queryRunner.startTransaction();
+
+      await em.update(
+        User,
+        { email: userEmail },
+        {
+          firstName,
+          lastName,
+          color,
+          profileSetup: true,
+        }
+      );
+
+      await queryRunner.commitTransaction();
+      return { status: true, message: "User details updates successfully" };
+    } catch (err) {
+      if (queryRunner.isTransactionActive)
+        await queryRunner.rollbackTransaction();
+      throw err;
     } finally {
       await queryRunner.release();
     }
