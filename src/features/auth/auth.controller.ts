@@ -63,4 +63,32 @@ export class AuthController {
       });
     }
   }
+  public static async addProfileImage(req: Request, res: Response) {
+    try {
+      const userEmail = req.context;
+      const file = req.file;
+      const result = await new AuthService().addProfileImage(
+        userEmail,
+        file as Express.Multer.File
+      );
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: "Error while getting user info " + error,
+      });
+    }
+  }
+  public static async deleteProfileImage(req: Request, res: Response) {
+    try {
+      const userEmail = req.context;
+      const result = await new AuthService().removeProfileImage(userEmail);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: "Error while getting user info " + error,
+      });
+    }
+  }
 }

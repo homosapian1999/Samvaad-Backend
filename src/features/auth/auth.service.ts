@@ -7,6 +7,7 @@ import {
   validateEmail,
 } from "../../helpers/authHelper";
 import jwt from "jsonwebtoken";
+import { renameSync, unlinkSync } from "fs";
 
 export class AuthService {
   public async registerUser(
@@ -148,6 +149,66 @@ export class AuthService {
 
       await queryRunner.commitTransaction();
       return { status: true, message: "User details updates successfully" };
+    } catch (err) {
+      if (queryRunner.isTransactionActive)
+        await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  public async addProfileImage(userEmail: string, file: Express.Multer.File) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      if (!file) throw new Error("File not provided");
+      const date = Date.now();
+      let fileName = "uploads/profiles/" + date + file.originalname;
+      const filePath = (file as any).path;
+      if (!filePath) throw new Error("File path not found");
+      renameSync(filePath, fileName);
+
+      const user = await em.findOne(User, {
+        where: { email: userEmail, isActive: true },
+      });
+      if (!user) throw new Error("User not found");
+
+      await queryRunner.startTransaction();
+
+      await em.update(User, { email: user.email }, { image: fileName });
+
+      await queryRunner.commitTransaction();
+      return {
+        status: true,
+        message: "Image Uploaded Successfully",
+        image: user.image,
+      };
+    } catch (err) {
+      if (queryRunner.isTransactionActive)
+        await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  public async removeProfileImage(userEmail: string) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      if (!userEmail) throw new Error("User email not provided ");
+      const user = await em.findOne(User, {
+        where: { email: userEmail, isActive: true },
+      });
+      if (!user) throw new Error("No user found");
+      await queryRunner.startTransaction();
+      if (user.image) unlinkSync(user.image);
+      user.image = null as unknown as string;
+      em.save(user);
+
+      await queryRunner.commitTransaction();
+      return { status: true, message: "User deleted successfully" };
     } catch (err) {
       if (queryRunner.isTransactionActive)
         await queryRunner.rollbackTransaction();
