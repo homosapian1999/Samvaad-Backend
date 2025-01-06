@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
+import { UpdateProfile } from "./auth.types";
 export class AuthController {
   public static async registerUser(req: Request, res: Response) {
     try {
@@ -40,6 +41,20 @@ export class AuthController {
     try {
       const userEmail = req.context;
       const result = await new AuthService().getUserInfo(userEmail);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: "Error while getting user info " + error,
+      });
+    }
+  }
+  public static async updateProfile(req: Request, res: Response) {
+    try {
+      const userEmail = req.context;
+      const reqBody: UpdateProfile = req.body;
+      reqBody.userEmail = userEmail;
+      const result = await new AuthService().updateProfile(reqBody);
       res.json(result);
     } catch (error) {
       res.status(400).json({

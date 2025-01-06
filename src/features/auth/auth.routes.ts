@@ -7,5 +7,10 @@ const authRouter = Router();
 authRouter.post("/register", AuthController.registerUser);
 authRouter.post("/login", AuthController.loginUser);
 authRouter.get("/user-info", requiresSignIn, AuthController.getUserInfo);
+authRouter.post(
+  "/update-profile",
+  requiresSignIn,
+  AuthController.updateProfile
+);
 
 export { authRouter };
