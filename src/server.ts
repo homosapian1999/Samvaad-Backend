@@ -24,10 +24,12 @@ const port = parseInt(process.env.PORT as string, 10);
 app.use(
   cors({
     origin: [process.env.ORIGIN as string],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "DELETE"],
     credentials: true,
   })
 );
+
+app.use("/uploads/profiles", express.static("/uploads/profiles"));
 
 app.use(cookieParser());
 
