@@ -6,6 +6,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { authRouter } from "./features/auth/auth.routes";
 import morgan from "morgan";
+import { profileRouter } from "./features/profile/profile.routes";
 
 declare global {
   namespace Express {
@@ -36,6 +37,7 @@ app.use(cookieParser());
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 app.use("/auth", authRouter);
+app.use("/profile", profileRouter);
 
 export const AppDataSource = new DataSource({
   type: "postgres",

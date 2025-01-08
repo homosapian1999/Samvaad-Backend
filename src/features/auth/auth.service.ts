@@ -217,4 +217,11 @@ export class AuthService {
       await queryRunner.release();
     }
   }
+  public async logout() {
+    try {
+      return { status: true, message: "Logout successful" };
+    } catch (err) {
+      throw err;
+    }
+  }
 }
