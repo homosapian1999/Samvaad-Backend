@@ -91,4 +91,20 @@ export class AuthController {
       });
     }
   }
+  public static async logout(req: Request, res: Response) {
+    try {
+      const result = await new AuthService().logout();
+      res.cookie("token", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 1,
+      });
+      res.json(result);
+    } catch (error) {
+      res
+        .status(400)
+        .json({ status: false, message: "Error while logging in " + error });
+    }
+  }
 }

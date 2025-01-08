@@ -28,4 +28,6 @@ authRouter.delete(
   AuthController.deleteProfileImage
 );
 
+authRouter.post("/logout", requiresSignIn, AuthController.logout);
+
 export { authRouter };
