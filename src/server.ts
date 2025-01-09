@@ -7,6 +7,8 @@ import cookieParser from "cookie-parser";
 import { authRouter } from "./features/auth/auth.routes";
 import morgan from "morgan";
 import { profileRouter } from "./features/profile/profile.routes";
+import { createServer } from "http";
+import setupSocket from "./socket";
 
 declare global {
   namespace Express {
@@ -60,7 +62,9 @@ const startServer = async () => {
   try {
     await AppDataSource.initialize();
     console.log("Connected to the database");
-    app.listen(port, () => {
+    const server = createServer(app);
+    setupSocket(server);
+    server.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });
   } catch (error) {
