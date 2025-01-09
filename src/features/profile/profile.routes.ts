@@ -10,4 +10,10 @@ profileRouter.post(
   ProfileController.searchContact
 );
 
+profileRouter.get(
+  "/get-dm-list",
+  requiresSignIn,
+  ProfileController.getContactsForDMList
+);
+
 export { profileRouter };

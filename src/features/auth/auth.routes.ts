@@ -4,7 +4,7 @@ import { requiresSignIn } from "../../middlewares/authMiddleware";
 import multer from "multer";
 
 const authRouter = Router();
-const upload = multer({ dest: "uploads/profiles/" });
+const upload = multer({ dest: "uploads/profiles" });
 
 authRouter.post("/register", AuthController.registerUser);
 authRouter.post("/login", AuthController.loginUser);
