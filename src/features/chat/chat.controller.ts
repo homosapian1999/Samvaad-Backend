@@ -18,4 +18,18 @@ export class ChatController {
       });
     }
   }
+  public static async uploadFile(req: Request, res: Response) {
+    try {
+      const file = req.file;
+      const result = await new ChatService().uploadFile(
+        file as Express.Multer.File
+      );
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: "Error while getting user info " + error,
+      });
+    }
+  }
 }

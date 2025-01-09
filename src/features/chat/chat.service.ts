@@ -1,3 +1,4 @@
+import { mkdirSync, renameSync } from "fs";
 import { Message } from "../../entity/message.entity";
 import { User } from "../../entity/user.entity";
 import { AppDataSource } from "../../server";
@@ -30,6 +31,30 @@ export class ChatService {
       });
       return { status: true, messages };
     } catch (err) {
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  public async uploadFile(file: Express.Multer.File) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      if (!file) throw new Error("File not provided");
+
+      console.log(file);
+
+      const date = Date.now();
+      let fileDir = `uploads/files/${date}`;
+      let fileName = `${fileDir}/${file.originalname}`;
+      mkdirSync(fileDir, { recursive: true });
+      renameSync(file.path, fileName);
+
+      return { status: true, filePath: fileName };
+    } catch (err) {
+      if (queryRunner.isTransactionActive)
+        await queryRunner.rollbackTransaction();
       throw err;
     } finally {
       await queryRunner.release();
