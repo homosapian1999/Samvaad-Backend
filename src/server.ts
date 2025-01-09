@@ -9,6 +9,7 @@ import morgan from "morgan";
 import { profileRouter } from "./features/profile/profile.routes";
 import { createServer } from "http";
 import setupSocket from "./socket";
+import { chatRouter } from "./features/chat/chat.routes";
 
 declare global {
   namespace Express {
@@ -40,6 +41,7 @@ if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
+app.use("/chat", chatRouter);
 
 export const AppDataSource = new DataSource({
   type: "postgres",
