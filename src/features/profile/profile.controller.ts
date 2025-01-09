@@ -18,4 +18,16 @@ export class ProfileController {
       });
     }
   }
+  public static async getContactsForDMList(req: Request, res: Response) {
+    try {
+      const userEmail = req.context;
+      const result = await new ProfileService().getContactsListForDM(userEmail);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: "Error while getting user info " + error,
+      });
+    }
+  }
 }

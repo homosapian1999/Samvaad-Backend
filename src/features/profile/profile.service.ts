@@ -1,3 +1,4 @@
+import { Message } from "../../entity/message.entity";
 import { User } from "../../entity/user.entity";
 import { AppDataSource } from "../../server";
 import { Brackets } from "typeorm";
@@ -37,6 +38,29 @@ export class ProfileService {
         )
         .getRawMany();
 
+      return { status: true, contacts };
+    } catch (err) {
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  public async getContactsListForDM(currentUserEmailId: string) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      const contacts = await em
+        .createQueryBuilder(User, "u")
+        .leftJoin(Message, "m", "(m.sender_id = u.id or m.recipient_id = u.id)")
+        .where("u.email != :currentUserEmail", {
+          currentUserEmail: currentUserEmailId,
+        })
+        .andWhere("(m.sender_id IS NOT NULL OR m.recipient_id IS NOT NULL)")
+        .groupBy("u.id")
+        .orderBy("MAX(m.timestamp)", "DESC")
+        .getMany();
       return { status: true, contacts };
     } catch (err) {
       throw err;
