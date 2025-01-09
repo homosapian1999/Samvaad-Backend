@@ -68,6 +68,8 @@ const setupSocket: SetupSocket = (server) => {
       },
     });
 
+    console.log(messageData);
+
     if (recipientSocketId) {
       io.to(recipientSocketId).emit("receiveMessage", messageData);
     }
@@ -81,7 +83,7 @@ const setupSocket: SetupSocket = (server) => {
     const userId = socket.handshake.query.userId;
 
     if (userId) {
-      userSocketMap.set(userId, socket.id);
+      userSocketMap.set(Number(userId), socket.id);
       console.log(`User connected: ${userId} with socket ID: ${socket.id}`);
     } else {
       console.log("User Id not provided during connection");
