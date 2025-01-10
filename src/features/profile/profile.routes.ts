@@ -16,4 +16,10 @@ profileRouter.get(
   ProfileController.getContactsForDMList
 );
 
+profileRouter.get(
+  "/get-all-contacts",
+  requiresSignIn,
+  ProfileController.getAllContacts
+);
+
 export { profileRouter };
