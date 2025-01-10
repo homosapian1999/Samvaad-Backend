@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from "typeorm";
+import { ChannelSchema } from "./channel.entity";
 
 @Entity({ schema: "public" })
 @Unique(["email"])
@@ -29,4 +36,7 @@ export class User {
 
   @Column({ name: "is_active", type: "boolean", default: true })
   isActive!: boolean;
+
+  @ManyToMany(() => ChannelSchema, (channel) => channel.members)
+  channels!: ChannelSchema[];
 }
