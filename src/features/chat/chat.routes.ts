@@ -4,7 +4,7 @@ import { requiresSignIn } from "../../middlewares/authMiddleware";
 import multer from "multer";
 
 const chatRouter = Router();
-const upload = multer({ dest: "uploads/files" });
+const upload = multer();
 
 chatRouter.post("/get-messages", requiresSignIn, ChatController.getMessages);
 chatRouter.post(

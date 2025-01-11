@@ -1,12 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatService = void 0;
-const fs_1 = require("fs");
 const message_entity_1 = require("../../entity/message.entity");
 const user_entity_1 = require("../../entity/user.entity");
 const server_1 = require("../../server");
 const typeorm_1 = require("typeorm");
 const channel_entity_1 = require("../../entity/channel.entity");
+const supabase_1 = __importDefault(require("../../supabase"));
 class ChatService {
     async getMessages(currentUserEmail, secondUserId) {
         const queryRunner = server_1.AppDataSource.createQueryRunner();
@@ -49,12 +52,18 @@ class ChatService {
         try {
             if (!file)
                 throw new Error("File not provided");
-            const date = Date.now();
-            let fileDir = `uploads/files/${date}`;
-            let fileName = `${fileDir}/${file.originalname}`;
-            (0, fs_1.mkdirSync)(fileDir, { recursive: true });
-            (0, fs_1.renameSync)(file.path, fileName);
-            return { status: true, filePath: fileName };
+            const { data, error } = await supabase_1.default.storage
+                .from("chat-files")
+                .upload(`files/${Date.now()}_${file.originalname}`, file.buffer);
+            if (error)
+                throw new Error(`Upload error: ${error.message}`);
+            const response = supabase_1.default.storage
+                .from("chat-files")
+                .getPublicUrl(data === null || data === void 0 ? void 0 : data.path);
+            const publicUrl = response.data.publicUrl;
+            if (!publicUrl)
+                throw new Error("Error generating public URL");
+            return { status: true, filePath: publicUrl };
         }
         catch (err) {
             if (queryRunner.isTransactionActive)

@@ -8,7 +8,7 @@ const user_entity_1 = require("../../entity/user.entity");
 const server_1 = require("../../server");
 const authHelper_1 = require("../../helpers/authHelper");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const fs_1 = require("fs");
+const supabase_1 = __importDefault(require("../../supabase"));
 class AuthService {
     async registerUser(reqBody) {
         const queryRunner = server_1.AppDataSource.createQueryRunner();
@@ -169,24 +169,29 @@ class AuthService {
         try {
             if (!file)
                 throw new Error("File not provided");
-            const date = Date.now();
-            let fileName = "uploads/profiles/" + date + file.originalname;
-            const filePath = file.path;
-            if (!filePath)
-                throw new Error("File path not found");
-            (0, fs_1.renameSync)(filePath, fileName);
+            const { data, error } = await supabase_1.default.storage
+                .from("profile-images")
+                .upload(`profiles/${Date.now()}_${file.originalname}`, file.buffer);
+            if (error)
+                throw new Error(`Upload error: ${error.message}`);
+            const response = supabase_1.default.storage
+                .from("profile-images")
+                .getPublicUrl(data === null || data === void 0 ? void 0 : data.path);
+            const publicUrl = response.data.publicUrl;
+            if (!publicUrl)
+                throw new Error("Error generating public URL");
             const user = await em.findOne(user_entity_1.User, {
                 where: { email: userEmail, isActive: true },
             });
             if (!user)
                 throw new Error("User not found");
             await queryRunner.startTransaction();
-            await em.update(user_entity_1.User, { email: user.email }, { image: fileName });
+            await em.update(user_entity_1.User, { email: user.email }, { image: publicUrl });
             await queryRunner.commitTransaction();
             return {
                 status: true,
                 message: "Image Uploaded Successfully",
-                image: fileName,
+                image: publicUrl,
             };
         }
         catch (err) {
@@ -211,10 +216,16 @@ class AuthService {
             if (!user)
                 throw new Error("No user found");
             await queryRunner.startTransaction();
-            if (user.image)
-                (0, fs_1.unlinkSync)(user.image);
-            user.image = null;
-            em.save(user);
+            if (user.image) {
+                const fileName = user.image.split("/").pop();
+                const { error } = await supabase_1.default.storage
+                    .from("profile-images")
+                    .remove([`profiles/${fileName}`]);
+                if (error)
+                    throw new Error(`Delete error: ${error.message}`);
+                user.image = null;
+                await em.save(user);
+            }
             await queryRunner.commitTransaction();
             return { status: true, message: "User deleted successfully" };
         }

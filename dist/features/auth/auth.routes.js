@@ -10,7 +10,7 @@ const authMiddleware_1 = require("../../middlewares/authMiddleware");
 const multer_1 = __importDefault(require("multer"));
 const authRouter = (0, express_1.Router)();
 exports.authRouter = authRouter;
-const upload = (0, multer_1.default)({ dest: "uploads/profiles" });
+const upload = (0, multer_1.default)();
 authRouter.post("/register", auth_controller_1.AuthController.registerUser);
 authRouter.post("/login", auth_controller_1.AuthController.loginUser);
 authRouter.get("/user-info", authMiddleware_1.requiresSignIn, auth_controller_1.AuthController.getUserInfo);
