@@ -48,7 +48,7 @@ const setupSocket: SetupSocket = (server) => {
 
     const messageData = await messageRepository.findOne({
       where: { id: createdMessage.id },
-      relations: ["sender", "recipient"],
+      relations: ["sender"],
       select: {
         sender: {
           id: true,

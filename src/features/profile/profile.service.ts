@@ -11,7 +11,6 @@ export class ProfileService {
     const em = queryRunner.manager;
     try {
       if (!searchTerm) throw new Error("No search term provided");
-      console.log(userEmail);
 
       const contacts: User[] = await em
         .createQueryBuilder(User, "u")

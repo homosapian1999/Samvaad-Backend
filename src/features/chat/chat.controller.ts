@@ -62,4 +62,16 @@ export class ChatController {
       });
     }
   }
+  public static async getChannelMessages(req: Request, res: Response) {
+    try {
+      const channelId = parseInt(req.params.channelId, 10);
+      const result = await new ChatService().getChannelChats(channelId);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({
+        status: false,
+        message: "Error while getting user info " + error,
+      });
+    }
+  }
 }

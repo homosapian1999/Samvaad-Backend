@@ -2,7 +2,7 @@ import { mkdirSync, renameSync } from "fs";
 import { Message } from "../../entity/message.entity";
 import { User } from "../../entity/user.entity";
 import { AppDataSource } from "../../server";
-import { In } from "typeorm";
+import { Equal, In } from "typeorm";
 import { ChannelSchema } from "../../entity/channel.entity";
 
 export class ChatService {
@@ -44,8 +44,6 @@ export class ChatService {
     const em = queryRunner.manager;
     try {
       if (!file) throw new Error("File not provided");
-
-      console.log(file);
 
       const date = Date.now();
       let fileDir = `uploads/files/${date}`;
@@ -118,6 +116,37 @@ export class ChatService {
         })
         .getMany();
       return channels;
+    } catch (err) {
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  public async getChannelChats(channelId: number) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      const channel = await em.findOne(ChannelSchema, {
+        where: { id: channelId },
+      });
+      if (!channel) throw new Error("Channel not found");
+      const messages = await em.find(Message, {
+        where: { channelId: Equal(channel.id) },
+        relations: ["sender"],
+        select: {
+          sender: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            image: true,
+            color: true,
+          },
+        },
+        order: { timestamp: "ASC" },
+      });
+      return { status: true, messages };
     } catch (err) {
       throw err;
     } finally {

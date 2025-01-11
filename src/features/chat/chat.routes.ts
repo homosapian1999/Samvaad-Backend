@@ -20,5 +20,10 @@ chatRouter.post(
 );
 
 chatRouter.get("/get-channels", requiresSignIn, ChatController.getAllChannels);
+chatRouter.get(
+  "/get-channel-messages/:channelId",
+  requiresSignIn,
+  ChatController.getChannelMessages
+);
 
 export { chatRouter };
