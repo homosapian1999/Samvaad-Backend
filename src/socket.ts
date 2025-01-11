@@ -2,8 +2,9 @@ import { Server } from "http";
 import { Server as SocketIOServer, Socket } from "socket.io";
 import dotenv, { populate } from "dotenv";
 import { Message } from "./entity/message.entity";
-import { getRepository } from "typeorm";
 import { AppDataSource } from "./server";
+import { ChannelMessageType } from "./types/channel-message.types";
+import { ChannelSchema } from "./entity/channel.entity";
 
 dotenv.config();
 
@@ -33,6 +34,50 @@ const setupSocket: SetupSocket = (server) => {
       if (socketId === socket.id) {
         userSocketMap.delete(userId);
         break;
+      }
+    }
+  };
+
+  const sendChannelMessage = async (message: ChannelMessageType) => {
+    const { channelId } = message;
+    const messageRepository = AppDataSource.getRepository(Message);
+    const em = AppDataSource.manager;
+
+    const newMessage = em.create(Message, message as never as Message);
+    const createdMessage = await messageRepository.save(newMessage);
+
+    const messageData = await messageRepository.findOne({
+      where: { id: createdMessage.id },
+      relations: ["sender"],
+      select: {
+        sender: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          image: true,
+          color: true,
+        },
+      },
+    });
+
+    const channel = await em.findOne(ChannelSchema, {
+      where: { id: channelId },
+      relations: ["members", "admin"],
+      select: { members: true },
+    });
+
+    const finalData = { ...messageData, channelId: channel?.id };
+
+    if (channel && channel.members) {
+      channel.members.forEach((member) => {
+        const memberSocketId = userSocketMap.get(member.id);
+        if (memberSocketId) {
+          io.to(memberSocketId).emit("receive-channel-message", finalData);
+        }
+      });
+      const adminSocketId = userSocketMap.get(channel.admin.id);
+      if (adminSocketId) {
+        io.to(adminSocketId).emit("receive-channel-message", finalData);
       }
     }
   };
@@ -68,8 +113,6 @@ const setupSocket: SetupSocket = (server) => {
       },
     });
 
-    console.log(messageData);
-
     if (recipientSocketId) {
       io.to(recipientSocketId).emit("receiveMessage", messageData);
     }
@@ -90,6 +133,7 @@ const setupSocket: SetupSocket = (server) => {
     }
 
     socket.on("sendMessage", sendMessage);
+    socket.on("send-channel-message", sendChannelMessage);
     socket.on("disconnect", () => disconnect(socket));
   });
 };

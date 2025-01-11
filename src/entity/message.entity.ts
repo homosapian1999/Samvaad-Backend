@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./user.entity";
+import { ChannelSchema } from "./channel.entity";
 
 export enum MessageType {
   Text = "text",
@@ -53,4 +54,8 @@ export class Message {
     default: () => "CURRENT_TIMESTAMP",
   })
   timestamp!: Date;
+
+  @ManyToOne(() => ChannelSchema)
+  @JoinColumn({ name: "channel_id" })
+  channelId!: ChannelSchema;
 }

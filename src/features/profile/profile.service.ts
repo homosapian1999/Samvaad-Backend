@@ -2,6 +2,7 @@ import { Message } from "../../entity/message.entity";
 import { User } from "../../entity/user.entity";
 import { AppDataSource } from "../../server";
 import { Brackets } from "typeorm";
+import { ContactsType } from "./profile.types";
 
 export class ProfileService {
   public async searchContacts(userEmail: string, searchTerm: string) {
@@ -10,7 +11,6 @@ export class ProfileService {
     const em = queryRunner.manager;
     try {
       if (!searchTerm) throw new Error("No search term provided");
-      console.log(userEmail);
 
       const contacts: User[] = await em
         .createQueryBuilder(User, "u")
@@ -61,6 +61,38 @@ export class ProfileService {
         .groupBy("u.id")
         .orderBy("MAX(m.timestamp)", "DESC")
         .getMany();
+      return { status: true, contacts };
+    } catch (err) {
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  public async getAllContacts(currentUserEmail: string) {
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    const em = queryRunner.manager;
+    try {
+      const users: User[] = await em
+        .createQueryBuilder(User, "u")
+        .select([
+          'u.id as "id"',
+          'u.first_name as "firstName"',
+          'u.last_name as "lastName"',
+          'u.email as "email"',
+        ])
+        .where("u.email != :currentUserEmail", {
+          currentUserEmail: currentUserEmail,
+        })
+        .andWhere("u.is_active = :status", { status: true })
+        .getRawMany();
+
+      const contacts: ContactsType[] = users.map((user) => ({
+        label: user.firstName
+          ? `${user.firstName} ${user.lastName}`
+          : user.email,
+        value: user.id,
+      }));
       return { status: true, contacts };
     } catch (err) {
       throw err;

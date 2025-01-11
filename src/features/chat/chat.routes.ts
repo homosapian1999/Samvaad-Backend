@@ -13,5 +13,17 @@ chatRouter.post(
   upload.single("file"),
   ChatController.uploadFile
 );
+chatRouter.post(
+  "/create-channel",
+  requiresSignIn,
+  ChatController.createChannel
+);
+
+chatRouter.get("/get-channels", requiresSignIn, ChatController.getAllChannels);
+chatRouter.get(
+  "/get-channel-messages/:channelId",
+  requiresSignIn,
+  ChatController.getChannelMessages
+);
 
 export { chatRouter };
