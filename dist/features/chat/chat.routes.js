@@ -10,7 +10,7 @@ const authMiddleware_1 = require("../../middlewares/authMiddleware");
 const multer_1 = __importDefault(require("multer"));
 const chatRouter = (0, express_1.Router)();
 exports.chatRouter = chatRouter;
-const upload = (0, multer_1.default)({ dest: "uploads/files" });
+const upload = (0, multer_1.default)();
 chatRouter.post("/get-messages", authMiddleware_1.requiresSignIn, chat_controller_1.ChatController.getMessages);
 chatRouter.post("/upload-file", authMiddleware_1.requiresSignIn, upload.single("file"), chat_controller_1.ChatController.uploadFile);
 chatRouter.post("/create-channel", authMiddleware_1.requiresSignIn, chat_controller_1.ChatController.createChannel);

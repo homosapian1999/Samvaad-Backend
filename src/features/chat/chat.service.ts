@@ -4,6 +4,7 @@ import { User } from "../../entity/user.entity";
 import { AppDataSource } from "../../server";
 import { Equal, In } from "typeorm";
 import { ChannelSchema } from "../../entity/channel.entity";
+import supabase from "../../supabase";
 
 export class ChatService {
   public async getMessages(currentUserEmail: string, secondUserId: number) {
@@ -45,13 +46,21 @@ export class ChatService {
     try {
       if (!file) throw new Error("File not provided");
 
-      const date = Date.now();
-      let fileDir = `uploads/files/${date}`;
-      let fileName = `${fileDir}/${file.originalname}`;
-      mkdirSync(fileDir, { recursive: true });
-      renameSync(file.path, fileName);
+      const { data, error } = await supabase.storage
+        .from("chat-files")
+        .upload(`files/${Date.now()}_${file.originalname}`, file.buffer);
 
-      return { status: true, filePath: fileName };
+      if (error) throw new Error(`Upload error: ${error.message}`);
+
+      const response = supabase.storage
+        .from("chat-files")
+        .getPublicUrl(data?.path as string);
+
+      const publicUrl = response.data.publicUrl;
+
+      if (!publicUrl) throw new Error("Error generating public URL");
+
+      return { status: true, filePath: publicUrl };
     } catch (err) {
       if (queryRunner.isTransactionActive)
         await queryRunner.rollbackTransaction();

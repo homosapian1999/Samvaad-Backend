@@ -26,8 +26,8 @@ app.use((0, cors_1.default)({
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
 }));
-app.use("/uploads/profiles", express_1.default.static("uploads/profiles"));
-app.use("/uploads/files", express_1.default.static("uploads/files"));
+// app.use("/uploads/profiles", express.static("uploads/profiles"));
+// app.use("/uploads/files", express.static("uploads/files"));
 app.use((0, cookie_parser_1.default)());
 if (process.env.NODE_ENV === "development")
     app.use((0, morgan_1.default)("dev"));

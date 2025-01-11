@@ -8,6 +8,7 @@ import {
 } from "../../helpers/authHelper";
 import jwt from "jsonwebtoken";
 import { renameSync, unlinkSync } from "fs";
+import supabase from "../../supabase";
 
 export class AuthService {
   public async registerUser(reqBody: AuthRequestBody): Promise<AuthResponse> {
@@ -172,11 +173,20 @@ export class AuthService {
     const em = queryRunner.manager;
     try {
       if (!file) throw new Error("File not provided");
-      const date = Date.now();
-      let fileName = "uploads/profiles/" + date + file.originalname;
-      const filePath = (file as any).path;
-      if (!filePath) throw new Error("File path not found");
-      renameSync(filePath, fileName);
+
+      const { data, error } = await supabase.storage
+        .from("profile-images")
+        .upload(`profiles/${Date.now()}_${file.originalname}`, file.buffer);
+
+      if (error) throw new Error(`Upload error: ${error.message}`);
+
+      const response = supabase.storage
+        .from("profile-images")
+        .getPublicUrl(data?.path as string);
+
+      const publicUrl = response.data.publicUrl;
+
+      if (!publicUrl) throw new Error("Error generating public URL");
 
       const user = await em.findOne(User, {
         where: { email: userEmail, isActive: true },
@@ -185,13 +195,13 @@ export class AuthService {
 
       await queryRunner.startTransaction();
 
-      await em.update(User, { email: user.email }, { image: fileName });
+      await em.update(User, { email: user.email }, { image: publicUrl });
 
       await queryRunner.commitTransaction();
       return {
         status: true,
         message: "Image Uploaded Successfully",
-        image: fileName,
+        image: publicUrl,
       };
     } catch (err) {
       if (queryRunner.isTransactionActive)
@@ -212,9 +222,16 @@ export class AuthService {
       });
       if (!user) throw new Error("No user found");
       await queryRunner.startTransaction();
-      if (user.image) unlinkSync(user.image);
-      user.image = null as unknown as string;
-      em.save(user);
+
+      if (user.image) {
+        const fileName = user.image.split("/").pop();
+        const { error } = await supabase.storage
+          .from("profile-images")
+          .remove([`profiles/${fileName}`]);
+        if (error) throw new Error(`Delete error: ${error.message}`);
+        user.image = null as unknown as string;
+        await em.save(user);
+      }
 
       await queryRunner.commitTransaction();
       return { status: true, message: "User deleted successfully" };
