@@ -8,7 +8,7 @@ export type AuthResponse = {
   status: boolean;
   message: string;
   token?: string;
-  isProfileComplete?: boolean;
+  profileSetup?: boolean;
   firstName?: string;
   lastName?: string;
   image?: string;

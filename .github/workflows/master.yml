@@ -24,6 +24,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create uploads directory
+        run: |
+          mkdir -p ./uploads/files 
+          chmod -R 777 ./uploads
+
       - name: Run TypeScript Watch Mode
         run: npx tsc --noEmit
 
