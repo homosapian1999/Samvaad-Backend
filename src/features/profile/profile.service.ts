@@ -51,13 +51,18 @@ export class ProfileService {
     await queryRunner.connect();
     const em = queryRunner.manager;
     try {
+      const currentUser = await em.findOne(User, {
+        where: { email: currentUserEmailId, isActive: true },
+      });
       const contacts = await em
         .createQueryBuilder(User, "u")
         .leftJoin(Message, "m", "(m.sender_id = u.id or m.recipient_id = u.id)")
-        .where("u.email != :currentUserEmail", {
-          currentUserEmail: currentUserEmailId,
+        .where("u.id != :currentUserId", {
+          currentUserId: currentUser?.id,
         })
-        .andWhere("(m.sender_id IS NOT NULL OR m.recipient_id IS NOT NULL)")
+        .andWhere(":currentUserId IN (m.sender_id, m.recipient_id)", {
+          currentUserId: currentUser?.id,
+        })
         .groupBy("u.id")
         .orderBy("MAX(m.timestamp)", "DESC")
         .getMany();

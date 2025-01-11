@@ -10,9 +10,7 @@ import jwt from "jsonwebtoken";
 import { renameSync, unlinkSync } from "fs";
 
 export class AuthService {
-  public async registerUser(
-    reqBody: AuthRequestBody
-  ): Promise<{ status: boolean; message: string; token?: string }> {
+  public async registerUser(reqBody: AuthRequestBody): Promise<AuthResponse> {
     const queryRunner = AppDataSource.createQueryRunner();
     await queryRunner.connect();
     const em = queryRunner.manager;
@@ -41,13 +39,24 @@ export class AuthService {
       const newUser = em.create(User, {
         email,
         password: hashedPassword,
+        profileSetup: true,
       });
       await em.save(newUser);
       const token = jwt.sign({ email }, process.env.JWT_SECRET as string, {
         expiresIn: "1d",
       });
       await queryRunner.commitTransaction();
-      return { status: true, message: "User registered successfully", token };
+      return {
+        status: true,
+        message: "User registered successfully",
+        token,
+        profileSetup: newUser.profileSetup,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        image: newUser.image,
+        color: newUser.color,
+        email: newUser.email,
+      };
     } catch (error) {
       if (queryRunner.isTransactionActive) {
         await queryRunner.rollbackTransaction();
@@ -86,7 +95,7 @@ export class AuthService {
         status: true,
         message: "User logged in successfully",
         token,
-        isProfileComplete: existingUser.profileSetup,
+        profileSetup: existingUser.profileSetup,
         firstName: existingUser.firstName,
         lastName: existingUser.lastName,
         image: existingUser.image,
@@ -182,7 +191,7 @@ export class AuthService {
       return {
         status: true,
         message: "Image Uploaded Successfully",
-        image: user.image,
+        image: fileName,
       };
     } catch (err) {
       if (queryRunner.isTransactionActive)
