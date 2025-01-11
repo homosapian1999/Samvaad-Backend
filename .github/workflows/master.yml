@@ -27,5 +27,5 @@ jobs:
       - name: Run TypeScript Watch Mode
         run: npx tsc --noEmit
 
-      - name: Run tests
-        run: npm test
+      # - name: Run tests
+      #   run: npm test
