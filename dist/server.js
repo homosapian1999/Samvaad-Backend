@@ -22,7 +22,7 @@ app.use(express_1.default.json());
 const port = parseInt(process.env.PORT, 10);
 // Note: If more than one frontend is consuming the API, you can add the frontend URLs to the origin array.
 app.use((0, cors_1.default)({
-    origin: [process.env.ORIGIN],
+    origin: "https://samvaad-frontend.vercel.app",
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
 }));
