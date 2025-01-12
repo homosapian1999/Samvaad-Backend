@@ -51,7 +51,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
         : ["src/migration/**/*.ts"],
     ssl: { rejectUnauthorized: false },
     extra: {
-        max: 5,
+        max: 99,
         connectionTimeoutMillis: 3000,
     },
 });
