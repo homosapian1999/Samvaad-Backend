@@ -50,6 +50,10 @@ exports.AppDataSource = new typeorm_1.DataSource({
         ? ["dist/migration/**/*.js"]
         : ["src/migration/**/*.ts"],
     ssl: { rejectUnauthorized: false },
+    extra: {
+        max: 5,
+        connectionTimeoutMillis: 3000,
+    },
 });
 // export const AppDataSource = new DataSource({
 //   type: "postgres",
