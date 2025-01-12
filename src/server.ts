@@ -55,6 +55,10 @@ export const AppDataSource = new DataSource({
   entities: ["src/entity/**/*.ts"],
   migrations: ["src/migration/**/*.ts"],
   ssl: { rejectUnauthorized: false },
+  extra: {
+  max: 5, 
+  connectionTimeoutMillis: 3000,
+}
 });
 
 // export const AppDataSource = new DataSource({
