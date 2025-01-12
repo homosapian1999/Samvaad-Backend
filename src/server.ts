@@ -62,9 +62,9 @@ export const AppDataSource = new DataSource({
       : ["src/migration/**/*.ts"],
   ssl: { rejectUnauthorized: false },
   extra: {
-  max: 5, 
-  connectionTimeoutMillis: 3000,
-}
+    max: 5,
+    connectionTimeoutMillis: 3000,
+  },
 });
 
 // export const AppDataSource = new DataSource({
