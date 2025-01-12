@@ -43,8 +43,12 @@ exports.AppDataSource = new typeorm_1.DataSource({
     database: "postgres",
     synchronize: true,
     logging: true,
-    entities: ["src/entity/**/*.ts"],
-    migrations: ["src/migration/**/*.ts"],
+    entities: process.env.NODE_ENV === "production"
+        ? ["dist/entity/**/*.js"]
+        : ["src/entity/**/*.ts"], // Use .ts for local dev
+    migrations: process.env.NODE_ENV === "production"
+        ? ["dist/migration/**/*.js"]
+        : ["src/migration/**/*.ts"],
     ssl: { rejectUnauthorized: false },
 });
 // export const AppDataSource = new DataSource({
