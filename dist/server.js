@@ -45,6 +45,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     logging: false,
     entities: ["src/entity/**/*.ts"],
     migrations: ["src/migration/**/*.ts"],
+    ssl: { rejectUnauthorized: false },
 });
 app.get("/", (req, res) => {
     res.send("Hello Ankit!");
