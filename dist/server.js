@@ -22,7 +22,7 @@ app.use(express_1.default.json());
 const port = parseInt(process.env.PORT, 10);
 // Note: If more than one frontend is consuming the API, you can add the frontend URLs to the origin array.
 app.use((0, cors_1.default)({
-    origin: "https://samvaad-frontend.vercel.app",
+    origin: process.env.ORIGIN,
     methods: ["GET", "POST", "DELETE"],
     credentials: true,
 }));
@@ -51,7 +51,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
         : ["src/migration/**/*.ts"],
     ssl: { rejectUnauthorized: false },
     extra: {
-        max: 99,
+        max: 5,
         connectionTimeoutMillis: 3000,
     },
 });
