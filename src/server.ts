@@ -45,17 +45,31 @@ app.use("/chat", chatRouter);
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: process.env.DB_HOST as string,
-  port: process.env.DB_PORT as unknown as number,
-  username: process.env.DB_USER as string,
-  password: process.env.DB_PASSWORD as string,
-  database: process.env.DB_NAME as string,
+  host: "aws-0-ap-south-1.pooler.supabase.com",
+  port: 6543,
+  username: "postgres.lgmjtakrqyrwrnwtcppp",
+  password: "mC!uL!VVp.e9v$z",
+  database: "postgres",
   synchronize: true,
-  logging: false,
+  logging: true,
   entities: ["src/entity/**/*.ts"],
   migrations: ["src/migration/**/*.ts"],
   ssl: { rejectUnauthorized: false },
 });
+
+// export const AppDataSource = new DataSource({
+//   type: "postgres",
+//   host: process.env.DB_HOST as string,
+//   port: process.env.DB_PORT as unknown as number,
+//   username: process.env.DB_USER as string,
+//   password: process.env.DB_PASSWORD as string,
+//   database: process.env.DB_NAME as string,
+//   synchronize: true,
+//   logging: false,
+//   entities: ["src/entity/**/*.ts"],
+//   migrations: ["src/migration/**/*.ts"],
+//   ssl: { rejectUnauthorized: false },
+// });
 
 app.get("/", (req, res) => {
   res.send("Hello Ankit!");
