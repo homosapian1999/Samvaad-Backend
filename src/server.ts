@@ -43,43 +43,43 @@ app.use("/auth", authRouter);
 app.use("/profile", profileRouter);
 app.use("/chat", chatRouter);
 
-export const AppDataSource = new DataSource({
-  type: "postgres",
-  host: "aws-0-ap-south-1.pooler.supabase.com",
-  port: 6543,
-  username: "postgres.lgmjtakrqyrwrnwtcppp",
-  password: "mC!uL!VVp.e9v$z",
-  database: "postgres",
-  synchronize: true,
-  logging: true,
-  entities:
-    process.env.NODE_ENV === "production"
-      ? ["dist/entity/**/*.js"]
-      : ["src/entity/**/*.ts"], // Use .ts for local dev
-  migrations:
-    process.env.NODE_ENV === "production"
-      ? ["dist/migration/**/*.js"]
-      : ["src/migration/**/*.ts"],
-  ssl: { rejectUnauthorized: false },
-  extra: {
-    max: 5,
-    connectionTimeoutMillis: 5000,
-  },
-});
-
 // export const AppDataSource = new DataSource({
 //   type: "postgres",
-//   host: process.env.DB_HOST as string,
-//   port: process.env.DB_PORT as unknown as number,
-//   username: process.env.DB_USER as string,
-//   password: process.env.DB_PASSWORD as string,
-//   database: process.env.DB_NAME as string,
+//   host: "aws-0-ap-south-1.pooler.supabase.com",
+//   port: 6543,
+//   username: "postgres.lgmjtakrqyrwrnwtcppp",
+//   password: "mC!uL!VVp.e9v$z",
+//   database: "postgres",
 //   synchronize: true,
-//   logging: false,
-//   entities: ["src/entity/**/*.ts"],
-//   migrations: ["src/migration/**/*.ts"],
+//   logging: true,
+//   entities:
+//     process.env.NODE_ENV === "production"
+//       ? ["dist/entity/**/*.js"]
+//       : ["src/entity/**/*.ts"], // Use .ts for local dev
+//   migrations:
+//     process.env.NODE_ENV === "production"
+//       ? ["dist/migration/**/*.js"]
+//       : ["src/migration/**/*.ts"],
 //   ssl: { rejectUnauthorized: false },
+//   extra: {
+//     max: 5,
+//     connectionTimeoutMillis: 5000,
+//   },
 // });
+
+export const AppDataSource = new DataSource({
+  type: "postgres",
+  host: process.env.DB_HOST as string,
+  port: process.env.DB_PORT as unknown as number,
+  username: process.env.DB_USER as string,
+  password: process.env.DB_PASSWORD as string,
+  database: process.env.DB_NAME as string,
+  synchronize: true,
+  logging: false,
+  entities: ["src/entity/**/*.ts"],
+  migrations: ["src/migration/**/*.ts"],
+  ssl: { rejectUnauthorized: false },
+});
 
 app.get("/", (req, res) => {
   res.send("Hello Ankit!");
