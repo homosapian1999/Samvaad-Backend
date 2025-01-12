@@ -63,7 +63,7 @@ export const AppDataSource = new DataSource({
   ssl: { rejectUnauthorized: false },
   extra: {
     max: 5,
-    connectionTimeoutMillis: 3000,
+    connectionTimeoutMillis: 5000,
   },
 });
 

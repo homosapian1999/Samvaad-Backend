@@ -52,7 +52,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     ssl: { rejectUnauthorized: false },
     extra: {
         max: 5,
-        connectionTimeoutMillis: 3000,
+        connectionTimeoutMillis: 5000,
     },
 });
 // export const AppDataSource = new DataSource({
